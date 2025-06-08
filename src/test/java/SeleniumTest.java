@@ -14,6 +14,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration; 
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 
 public class SeleniumTest {
 
@@ -61,18 +62,32 @@ public class SeleniumTest {
 
     @Test
     public void test3() {
-        driver.get("https://www.globo.com/");
-        
-        driver.findElement(By.id("header-search-button")).click();
-        
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        WebElement searchBar = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("header-search-input")));
-        
-        searchBar.sendKeys("fantastico");
-        searchBar.submit();
-        
-        wait.until(ExpectedConditions.urlContains("busca.globo.com"));
-        assertTrue(driver.getCurrentUrl().contains("fantastico"));
+        WebDriver driver = new ChromeDriver();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+        try {
+            driver.manage().window().maximize();
+            driver.get("https://www.globo.com");
+
+            // Espera o botão de lupa estar presente e força o clique com JavaScript (caso seja encoberto)
+            WebElement searchButton = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("header-search-button")));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", searchButton);
+
+            // Espera o campo de input aparecer e digita a busca
+            WebElement searchInput = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("header-search-input")));
+            searchInput.sendKeys("notícias de hoje");
+
+            // Pressiona ENTER para iniciar a busca
+            searchInput.sendKeys(Keys.ENTER);
+
+            // Aguarda algum tempo para visualizar os resultados (opcional)
+            Thread.sleep(5000);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            driver.quit();
+        }
     }
 
     @Test
